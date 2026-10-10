@@ -1,12 +1,14 @@
 [submodule "pico-fido"]
-	path = pico-fido
-	url = ../pico-fido.git
-	branch = main
+path = pico-fido
+url = https://github.com/librekeys/pico-fido.git
+branch = main
+
 [submodule "pico-openpgp"]
-	path = pico-openpgp
-	url = ../pico-openpgp.git
-	branch = main
+path = pico-openpgp
+url = https://github.com/librekeys/pico-openpgp.git
+branch = main
+
 [submodule "pico-keys-sdk"]
-	path = pico-keys-sdk
-	url = ../pico-keys-sdk.git
-	branch = main
+path = pico-keys-sdk
+url = https://github.com/librekeys/pico-keys-sdk.git
+branch = main
