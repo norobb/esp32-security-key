@@ -9,11 +9,15 @@ on:
 
 jobs:
   build:
-    name: Build ${{ matrix.board }}
+    name: Build ${{ matrix.esp_product }}
     strategy:
       fail-fast: false
       matrix:
-        board: [weact_studio_rp2040_16mb]
+        include:
+          - esp_product: esp32s2
+            esp_name: ESP32-S2
+          - esp_product: esp32s3
+            esp_name: ESP32-S3
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -21,30 +25,19 @@ jobs:
         with:
           submodules: 'recursive'
 
-      - name: Install dependencies
-        run: |
-          sudo apt update
-          sudo apt install -y cmake gcc-arm-none-eabi libnewlib-arm-none-eabi libstdc++-arm-none-eabi-newlib
-
-      - name: Clone and build pico-sdk
-        run: |
-          git clone https://github.com/raspberrypi/pico-sdk
-          cd pico-sdk
-          git checkout tags/2.1.1
-          git submodule update --init
-          cd ..
-
-      - name: Build firmware
-        env:
-          PICO_SDK_PATH: ${{ github.workspace }}/pico-sdk
-        run: |
-          mkdir -p build_ci
-          cd build_ci
-          cmake .. -DPICO_BOARD=${{ matrix.board }}
-          make -j$(nproc)
+      - name: Build firmware with ESP-IDF
+        uses: espressif/idf-action@v1
+        with:
+          esp_idf_version: 'v5.5'
+          target: ${{ matrix.esp_product }}
+          command: |
+            idf.py set-target ${{ matrix.esp_product }}
+            idf.py all
+            cd build
+            esptool.py --chip ${{ matrix.esp_name }} merge_bin -o pico_fido_esp32.bin @flash_args
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: pico_fido2_${{ matrix.board }}
-          path: build_ci/pico_fido2.uf2
+          name: pico_fido_esp32_${{ matrix.esp_product }}
+          path: build/pico_fido_esp32.bin
